@@ -74,13 +74,9 @@ public class TownyUniverse {
             e.printStackTrace();
             return false;
         }
+		// Init logger
+		TownyLogger.getInstance();
         
-		// Enable debug logger if set in the config.
-		if (TownySettings.getDebug()) {
-			TownyLogger.getInstance().enableDebugLogger();
-			TownyLogger.getInstance().updateLoggers();
-		}
-		
         String saveDbType = TownySettings.getSaveDatabase();
         String loadDbType = TownySettings.getLoadDatabase();
         
@@ -415,8 +411,12 @@ public class TownyUniverse {
 	 * @return PlotGroup if found, null if none found.
 	 */
 	public PlotObjectGroup getGroup(String townName, UUID groupID) {
-		Town t = towns.get(townName);
-		
+		Town t = null;
+		try {
+			t = TownyUniverse.getInstance().getDataSource().getTown(townName);
+		} catch (NotRegisteredException e) {
+			return null;
+		}
 		if (t != null) {
 			return t.getObjectGroupFromID(groupID);
 		}

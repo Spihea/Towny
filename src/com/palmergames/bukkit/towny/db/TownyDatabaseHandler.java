@@ -12,6 +12,7 @@ import com.palmergames.bukkit.towny.event.PreDeleteTownEvent;
 import com.palmergames.bukkit.towny.event.RenameNationEvent;
 import com.palmergames.bukkit.towny.event.RenameResidentEvent;
 import com.palmergames.bukkit.towny.event.RenameTownEvent;
+import com.palmergames.bukkit.towny.event.TownPreUnclaimEvent;
 import com.palmergames.bukkit.towny.event.TownUnclaimEvent;
 import com.palmergames.bukkit.towny.event.PreDeleteNationEvent;
 import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
@@ -194,7 +195,7 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 		return universe.getTownsMap().get(name);
 	}
 	
-	public PlotObjectGroup getPlotObjectGroup(String worldName, String townName, UUID groupID) {
+	public PlotObjectGroup getPlotObjectGroup(String townName, UUID groupID) {
 		return universe.getGroup(townName, groupID);
 	}
 
@@ -330,6 +331,12 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 	}
 
 	public void removeOneOfManyTownBlocks(TownBlock townBlock, Town town) {
+		
+		TownPreUnclaimEvent event = new TownPreUnclaimEvent(townBlock);
+		BukkitTools.getPluginManager().callEvent(event);
+		
+		if (event.isCancelled())
+			return;
 
 		Resident resident = null;
 		try {
@@ -364,6 +371,12 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 	@Override
 	public void removeTownBlock(TownBlock townBlock) {
 
+		TownPreUnclaimEvent event = new TownPreUnclaimEvent(townBlock);
+		BukkitTools.getPluginManager().callEvent(event);
+		
+		if (event.isCancelled())
+			return;
+		
 		Town town = null;
 //		Resident resident = null;                   - Removed in 0.95.2.5
 //		try {
@@ -426,7 +439,7 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 		return townBlocks;
 	}
 	
-	public List<PlotObjectGroup> getAllGroups() {
+	public List<PlotObjectGroup> getAllPlotGroups() {
 		List<PlotObjectGroup> groups = new ArrayList<>();
 		groups.addAll(universe.getGroups());
 		
@@ -856,7 +869,7 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 
 			saveTown(town);
 			saveTownList();
-			saveGroupList();
+			savePlotGroupList();
 			saveWorld(town.getWorld());
 
 			if (nation != null) {
@@ -979,10 +992,10 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 		
 		// Save
 		savePlotGroup(group);
-		saveGroupList();
+		savePlotGroupList();
 
 		// Delete the old group file.
-		deleteGroup(group);
+		deletePlotGroup(group);
 	}
 
 	@Override
@@ -1001,6 +1014,7 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 			long lastOnline;
 			boolean isMayor;
 			boolean isJailed;
+			boolean isNPC;
 			int JailSpawn;
 			
 			if(TownyEconomyHandler.getVersion().startsWith("iConomy 5") && TownySettings.isUsingEconomy()){
@@ -1025,6 +1039,7 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 			registered = resident.getRegistered();			
 			lastOnline = resident.getLastOnline();
 			isMayor = resident.isMayor();
+			isNPC = resident.isNPC();
 			isJailed = resident.isJailed();			
 			JailSpawn = resident.getJailSpawn();
 			
@@ -1070,6 +1085,8 @@ public abstract class TownyDatabaseHandler extends TownyDataSource {
 				} catch (TownyException ignored) {
 				}
 			}
+			if (isNPC)
+				resident.setNPC(true);
 			resident.setJailed(isJailed);
 			resident.setJailSpawn(JailSpawn);
 			
