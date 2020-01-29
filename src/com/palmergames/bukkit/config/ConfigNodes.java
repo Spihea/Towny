@@ -1698,8 +1698,8 @@ public enum ConfigNodes {
 		"# The radius at which to search for entities, from the flag's base. A value of 0 will disable the event."),
 	WAR_ENEMY_FLAG_GLOW_DURATION(
 		"war.enemy.flag.glow.glow_duration",
-		"20",
-		"# The duration (in ticks) that the glowing effect should be given. Will never be less than 20."),
+		"5",
+		"# The duration (in seconds) that the glowing effect should be given."),
 	WAR_ENEMY_BEACON("war.enemy.beacon", ""),
 	WAR_ENEMY_BEACON_RADIUS(
 			"war.enemy.beacon.radius",

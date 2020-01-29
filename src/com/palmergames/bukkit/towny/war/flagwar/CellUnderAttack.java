@@ -176,9 +176,6 @@ public class CellUnderAttack extends Cell {
 		
 		// Glow's duration is same as half of a flag's update interval to save resources.
 		int effectDuration = TownyWarConfig.getFlagWarGlowEffectDuration();
-		
-		// Enforce minimum duration
-		if (effectDuration < 20) effectDuration = 20;
 
 		// Gets base's location based on top's
 		Location flagBase = getTopOfFlagBlock().getLocation().subtract(0,1,0); 
@@ -191,7 +188,7 @@ public class CellUnderAttack extends Cell {
 			if (nextEntity instanceof LivingEntity) {
 				LivingEntity target = (LivingEntity) nextEntity;
 				if (!target.hasPotionEffect(PotionEffectType.GLOWING)) {
-					target.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, effectDuration,1));
+					target.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, (effectDuration*20),1));
 				}
 			}
 		}
